@@ -7,28 +7,39 @@ C socket server example
 #include <arpa/inet.h> //inet_addr
 #include <unistd.h> //write
 #include <bits/stdc++.h>
-#include <unistd.h>
 #include "dist/json/json.h"
 #include "dist/jsoncpp.cpp"
+#include <sys/time.h>
 #include <iostream>
-#include "dist/json/json.h"
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/resource.h> 
 
 using namespace std;
 
 void sig_handler(int signo)
 {
-  if (signo == SIGINT)
-    printf("received SIGINT\n");
+ 	// if (signo == SIGINT )
+	 //    cout << "Received Signal\n";
+
+  	if (signo == SIGXCPU)
+  		cout << "Recieved Time Limit Exceed\n";
+  	else cout << "In FUnction\n";
+
+	close(1);
+	close(0);
+	close(2);
+	exit(0);
 }
+
+int getrlimit(int resource, struct rlimit *rlim); 
+int setrlimit(int resource, const struct rlimit *rlim);
 
 
 int main(int argc , char *argv[])
@@ -40,7 +51,11 @@ int main(int argc , char *argv[])
 
 			// Signal Handlers
 
-			if (signal(SIGINT, sig_handler) == SIG_ERR)
+			if (signal(SIGXCPU , sig_handler) == SIG_ERR)
+		        printf("\ncan't catch SIGINT\n");
+		    if (signal(SIGKILL , sig_handler) == SIG_ERR)
+		        printf("\ncan't catch SIGINT\n");
+		    if (signal(SIGINT , sig_handler) == SIG_ERR)
 		        printf("\ncan't catch SIGINT\n");
 
 			int socket_desc , client_sock , c , read_size;
@@ -73,101 +88,129 @@ int main(int argc , char *argv[])
 			puts("bind done");
 
 			//Listen
-			listen(socket_desc , 3);
+		// 	listen(socket_desc , 3);
 
-			//Accept and incoming connection
-			puts("Waiting for incoming connections...");
-			c = sizeof(struct sockaddr_in);
+		// 	//Accept and incoming connection
+		// 	puts("Waiting for incoming connections...");
+		// 	c = sizeof(struct sockaddr_in);
 
-			//accept connection from an incoming client
-			client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-			if (client_sock < 0)
-			{
-				perror("accept failed");
-				return 1;
-			}
-			puts("Connection accepted");
+		// 	//accept connection from an incoming client
+		// 	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+		// 	if (client_sock < 0)
+		// 	{
+		// 		perror("accept failed");
+		// 		return 1;
+		// 	}
+		// 	puts("Connection accepted");
 
-			Json::Value root;   
-			Json::Reader reader;
+		// 	Json::Value root;   
+		// 	Json::Reader reader;
 
-			//Receive a message from client
-			while( (read_size = recv(client_sock , client_message , 20000 , 0)) > 0 )
-			{
-			//Send the message back to client
-				std:: cout << " Strlen : " << strlen(client_message) << std::endl;
-
-
-				bool parsingSuccessful = reader.parse( client_message, root );     //parse process
-				    if ( !parsingSuccessful )
-				    {
-				        std::cout  << "Failed to parse"
-				               << reader.getFormattedErrorMessages();
-				        return 0;
-				    }
-				    // std::cout << root.get("hello", "A Default Value if not exists" ).asString() << std::endl;
-				    cout << client_message << endl;
-
-				   	//Parsing of the function json received:
-				   	// 	 temp = simplejson.dumps({
-					   	//   'id': sol.id, 
-			      		//	'path' : str(os.getcwd()),
-			      		//	'filename': str(name[:-4]),
-			      		//	'input': input,
-			      		//	'output': output,
-			      		//  'time': p.timeLimit})
-
-			}	
-
-			if(read_size == 0)
-			{
-				puts("Client disconnected");
-				fflush(stdout);
-			}
-			else if(read_size == -1)
-			{
-				perror("recv failed");
-			}
-
-			int time_limit = root.get("time", "5").asInt();
-			string filename = root.get("filename", "error").asString();
-			string input = root.get("input", "").asString();
-			string output = root.get("output", "5").asString();
-			string path = root.get("path", "5").asString();
-
-			cout << path << endl;
-
-			path += "/" + filename;
+		// 	//Receive a message from client
+		// 	while( (read_size = recv(client_sock , client_message , 20000 , 0)) > 0 )
+		// 	{
+		// 	//Send the message back to client
+		// 		std:: cout << " Strlen : " << strlen(client_message) << std::endl;
 
 
-			std::ofstream file("input.txt");
-			file << input;
-			file.close();
+		// 		bool parsingSuccessful = reader.parse( client_message, root );     //parse process
+		// 		    if ( !parsingSuccessful )
+		// 		    {
+		// 		        std::cout  << "Failed to parse"
+		// 		               << reader.getFormattedErrorMessages();
+		// 		        return 0;
+		// 		    }
+		// 		    // std::cout << root.get("hello", "A Default Value if not exists" ).asString() << std::endl;
+		// 		    cout << client_message << endl;
+
+		// 		   	//Parsing of the function json received:
+		// 		   	// 	 temp = simplejson.dumps({
+		// 			   	//   'id': sol.id, 
+		// 	      		//	'path' : str(os.getcwd()),
+		// 	      		//	'filename': str(name[:-4]),
+		// 	      		//	'input': input,
+		// 	      		//	'output': output,
+		// 	      		//  'time': p.timeLimit})
+
+		// 	}	
+
+		// 	if(read_size == 0)
+		// 	{
+		// 		puts("Client disconnected");
+		// 		fflush(stdout);
+		// 	}
+		// 	else if(read_size == -1)
+		// 	{
+		// 		perror("recv failed");
+		// 	}
+
+		// 	int time_limit = root.get("time", "5").asInt();
+		// 	string filename = root.get("filename", "error").asString();
+		// 	string input = root.get("input", "").asString();
+		// 	string output = root.get("output", "5").asString();
+		// 	string path = root.get("path", "5").asString();
+
+		// 	cout << path << endl;
+
+		// 	path += "/" + filename;
+
+
+		// 	std::ofstream file("input.txt");
+		// 	file << input;
+		// 	file.close();
 			
-			std::ofstream file_o("output.txt");
-			file_o << output;
-			file_o.close();
+		// 	std::ofstream file_o("output.txt");
+		// 	file_o << output;
+		// 	file_o.close();
 
-		// Child Process
-		int file_read = open("input.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-		int file_write = open("out.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		// // Child Process
+		// int file_read = open("input.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		// int file_write = open("out.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-		dup2(file_read, 0);
-		dup2(file_write, 1);   // make stdout go to file
-		dup2(file_write, 2);   // make stderr go to file - you may choose to not do this
-		               // or perhaps send stderr to another file
+		// dup2(file_read, 0);
+		// dup2(file_write, 1);   // make stdout go to file
+		// dup2(file_write, 2);   // make stderr go to file - you may choose to not do this
+		//                // or perhaps send stderr to another file
 
-		close(file_write);     // file_write no longer needed - the dup'ed handles are sufficient
+		// close(file_write);     // file_write no longer needed - the dup'ed handles are sufficient
+		// close(file_read); 
 
+		// Setting Up Resource Limit.
+
+		struct rlimit rl; 
+		
+		// First get the time limit on CPU 
+		getrlimit (RLIMIT_CPU, &rl); 
+		
+		printf("\n Default value is : %lld\n", (long long int)rl.rlim_cur); 
+		
+		// Change the time limit 
+		rl.rlim_cur = 1; 
+		
+		// Now call setrlimit() to set the  
+		// changed value. 
+		setrlimit (RLIMIT_CPU, &rl); 
+		
+		// Again get the limit and check 
+		getrlimit (RLIMIT_CPU, &rl); 
+		
+		printf("\n Default value now is : %lld %lld\n", (long long int)rl.rlim_cur, (long long int)rl.rlim_max); 
+		
 		char *const args[] = {argv[1] , NULL};
 	    char *const envs[] = {"LD_PRELOAD=./EasySandbox.so",NULL};
 
-	    execve(argv[1], args, envs);
-	    execve(path.c_str(), args, envs);
+	    while(1);
+	    // execve(argv[1], args, envs);
+
+	    // execve(path.c_str(), args, envs);
 	}
 
 	else{
-		sleep(10);
+		
+		int childStatus;
+		// This status need to be updated in the database.
+		pid_t wait(int *status);
+
 	}
 	return 0;
 }

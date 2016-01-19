@@ -1,4 +1,0 @@
-
-
-Enter two numbers to add
-Sum of entered numbers = 3
