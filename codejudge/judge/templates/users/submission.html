@@ -37,6 +37,7 @@
                         <td>1</td>
                         <td><a href="../{{s.contest_id}}/problem/{{s.problem_id}}">{{s.problem.problemTitle}}</a></td>
                         <td><a href="{{s.solution}}">View Solution</a></td>
+                        <script>console.log({{s.solution}})</script>
                         {% if s.status == 0 %}
                             <td>Compiling...</td>
                         {% elif s.status == 1 %}

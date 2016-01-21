@@ -10,9 +10,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from judge.models import *
 from datetime import *
-import json
+import simplejson
 import socket
 import requests
+from subprocess import call
+import os
+
+import random, string
+def randomword(length):
+   return ''.join(random.choice(string.lowercase) for i in range(length))
 
 # Create your views here.
 
@@ -31,6 +37,12 @@ class Socket:
     def send(self, msg):
         sent = self.sock.send(msg)
 
+    def read(self):
+        recieved = self.sock.recv(1024)
+
+    def close(self):
+        self.sock.close()
+
 
 def userLogin(request):
     try:
@@ -48,13 +60,13 @@ def userLogin(request):
                     login(request, user)
                     request.session['username']  = username
                     request.session['password']  = password
-                    return HttpResponse(json.dumps({'errors': error}),content_type='application/json')
+                    return HttpResponse(simplejson.dumps({'errors': error}),content_type='application/simplejson')
                 else:
                     error = True
-                    return HttpResponse(json.dumps({'errors': error}),content_type='application/json')
+                    return HttpResponse(simplejson.dumps({'errors': error}),content_type='application/simplejson')
             else:
                 error = True
-                return HttpResponse(json.dumps({'errors': error}),content_type='application/json')
+                return HttpResponse(simplejson.dumps({'errors': error}),content_type='application/simplejson')
 
         return render(request, 'users/login.html')
 
@@ -156,8 +168,10 @@ def submitSolution(request):
         c = Contest.objects.get(id = request.POST['cid'])
         p = Problem.objects.get(id = request.POST['pid'])
         l = Language.objects.get(id = request.POST['lid'])
+        print h, c, p, l
         payload = {'fmt':'json', 'username':request.session['username'], 'password':request.session['password']}
-        auth = requests.get("http://localhost:8000/v1/getAuthID",payload)
+        auth = requests.get("http://localhost:8000/v1/getAuthID", payload)
+        print auth
         answer = auth.json()
         sol = Solution(hacker=h, contest=c, problem =p , points=0, language=l, attempts=0, time=0.0, status=0)
         sol.save()
@@ -168,28 +182,94 @@ def submitSolution(request):
         answer = req.json()
         sol.solution = answer['msg']
         sol.save()
+
+        l = Language.objects.get(id = request.POST['lid'])
+
         inputFile = settings.MEDIA_ROOT + str(p.testInput)
         outputFile = settings.MEDIA_ROOT + str(p.testOutput)
         file1 = open(inputFile, 'r')
         input = file1.read()
         file2 = open(outputFile, 'r')
         output = file2.read()
-        sock = Socket()
-        sock.connect("127.0.0.1", 6029)
-        temp = json.dumps({'id': sol.id, 
-             'filename': str(sol.id) + "." + str(l.extension),
-             'code': request.POST['solutionBox'],
-             'language': l.language,
-             'input': input,
-             'output': output,
-             'matchLines': 0,
-             'partial': 0,
-             'points':p.points,
-             'time': p.timeLimit})
-        sock.send(temp)
+
+
+        solution = request.POST['solutionBox']
+        soluton = str(solution)
+        name = randomword(10)
+        name = name + ".cpp"
+        f = open(name, 'w')
+        f.write(solution)
+        f.close()
+        compile_command = "g++ " + name + " -o " + name[:-4]    
+        # os.system(compile_command)
+        stream = os.popen(compile_command)
+        # print "Aman - ", stream 
+        # if os.path.isfile(name[:4] ) == 0:
+        if 0:
+            print "Errorrrrrrrrrr----------------------"
+            pass
+            # compilation error.
+
+        else:
+            print "Opening Socket"
+            sock = Socket()
+            sock.connect("127.0.0.1", 6030)
+            temp = simplejson.dumps({
+                # 'id': sol.id, 
+                'path' : str(os.getcwd()),
+                'filename': str(name[:-4]),
+                'input': input,
+                'output': output,
+                'time': p.timeLimit})
+            sock.send(temp)
+
+            # sockk = Socket()
+            # print "Opening Socket for sending Data\n"
+            # sockk.connect("127.0.0.1", 6031)
+            # sockk.listen(1)
+            # conn, addr = s.accept()
+            # print 'Connected by', addr
+            
+            # while 1:
+            #     data = conn.recv(1024)
+            #     if not data: break
+            #     # conn.sendall(data)
+            #     print "Status of Submission: ", data
+            # conn.close()
+
+        # sock = Socket()
+        # sock.connect("127.0.0.1", 6029)
+        # temp = simplejson.dumps({'id': sol.id, 
+        #      'filename': str(sol.id) + "." + str(l.extension),
+        #      'code': request.POST['solutionBox'],
+        #      'language': l.language,
+        #      'input': input,
+        #      'output': output,
+        #      'matchLines': 0,
+        #      'partial': 0,
+        #      'points':p.points,
+        #      'time': p.timeLimit})
+        # sock.send(temp)
         return HttpResponseRedirect('/judge/success')
     return HttpResponseForbidden('allowed only via POST')
 
+# @login_required
+def recieveSubmission(request):
+    print "Function Invoked"
+    sock = Socket()
+    sock.connect("127.0.0.1", 6030)
+    print "connected to socket"
+    # sock.recieved()
+    # while 1:
+    #     data = sock.sock.recv(1024)
+    #     if not data: break
+        # sock.sendall(data)
+    data = sock.sock.recv(1024)
+    sock.close()
+    print "data ", repr(data)
+    # print sock.recieved
+    # sock.close()
+    return HttpResponse("You're voting on question." )
 
 def register(request):
     errors = False
@@ -213,6 +293,6 @@ def register(request):
             request.session['password']  = password
             print request.session['username']
             
-        return HttpResponse(json.dumps({'errors': errors}),content_type='application/json')
+        return HttpResponse(simplejson.dumps({'errors': errors}),content_type='application/simplejson')
     else:
         raise Http404
