@@ -70,7 +70,7 @@ class Problem(models.Model):
     problemStatement = RichTextField(config_name='awesome_ckeditor')
     testInput = models.FileField(upload_to='testInput')
     testOutput = models.FileField(upload_to='testOutput')
-    points = models.PositiveSmallIntegerField()
+    marks = models.PositiveSmallIntegerField()
     timeLimit = models.PositiveSmallIntegerField()
     languagesAllowed = models.CommaSeparatedIntegerField(max_length=200)
     inputFormat = RichTextField(config_name='awesome_ckeditor')
