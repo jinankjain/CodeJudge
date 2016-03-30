@@ -18,7 +18,6 @@ urlpatterns = patterns('',
 	url(r'^submission/$', views.submission, name='index'),
 	url(r'^comment/$', views.comment, name='index'),
 	url(r'^changepassword/$', views.changePassword, name='index'),
-	url(r'^update_result/$', views.recieveSubmission, name='index'),
 )+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

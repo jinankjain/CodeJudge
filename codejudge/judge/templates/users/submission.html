@@ -4,7 +4,7 @@
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-              <a href="/judge" class="navbar-brand">Codejudge</a>
+              <a href="/judge" class="navbar-brand">CodeJudge-IIT Jodhpur</a>
             </div>    
         </div>
     </div>
@@ -13,10 +13,9 @@
     	<div class="row-fluid">
             <div class="col-md-2">
                 <ul class="nav nav-pills nav-stacked">
-                  <li><a href="/judge">Contest Details</a></li>
+                  <li><a href="/judge">Lab Sessions</a></li>
                   <li class="active"><a href="#">My Submissions</a></li>
                   <li><a href="/judge/profile">Profile Settings</a></li>
-                  <li><a href="http://localhost:3000" target="_blank">Chat</a></li>
                   <li><a href="/judge/logout">Logout</a></li>
                 </ul>
             </div>
@@ -37,7 +36,6 @@
                         <td>1</td>
                         <td><a href="../{{s.contest_id}}/problem/{{s.problem_id}}">{{s.problem.problemTitle}}</a></td>
                         <td><a href="{{s.solution}}">View Solution</a></td>
-                        <script>console.log({{s.solution}})</script>
                         {% if s.status == 0 %}
                             <td>Compiling...</td>
                         {% elif s.status == 1 %}

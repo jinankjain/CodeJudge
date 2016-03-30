@@ -4,8 +4,11 @@
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-              <a href="#" class="navbar-brand">Codejudge</a>
-            </div>    
+              <a href="#" class="navbar-brand">CodeJudge-IIT Jodhpur</a>
+            </div>
+            <a href="/admin" type="button" class="btn btn-default navbar-btn pull-right" style="background:  #0099ff;">
+                Faculty Login
+            </a>  
         </div>
     </div>
     <br><br><br><br>
@@ -46,8 +49,8 @@
       </div>
 
       <div class="col-md-4">
-        <h4>New Coders Register here</h4>
-        Register as a new coder to continue
+        <h4>New Students Register here</h4>
+        Register as a new participant to continue
         <hr>
         <span id="newUserErrors" style="background-color:#a00;"></span>
         <br><br>
@@ -55,11 +58,11 @@
         {% csrf_token %}
           <div class="form-group">
             <label for="inputUsername">Username</label>
-            <input required type="text" class="form-control" id="newUser" placeholder="The Chosen One" name="user_name">
+            <input required type="text" class="form-control" id="newUser" placeholder="Choose an appropriate user name" name="user_name">
           </div>
           <div class="form-group">
             <label for="inputEmail">Email address</label>
-            <input required type="email" class="form-control" id="newUserEmail" placeholder="Enter email id" name="email">
+            <input required type="email" class="form-control" id="newUserEmail" placeholder="Enter your IITJ email id" name="email">
           </div>
           <div class="form-group">
             <label for="inputPassword">Password</label>
@@ -100,7 +103,7 @@
           data: loginForm,
           success:function(data){
             if(data.errors){
-              error = "Are you drunk or not registered?";
+              error = "Kindly register before continuing";
               $("#errors").html(error).addClass("badge");
               done=false;
             }else{

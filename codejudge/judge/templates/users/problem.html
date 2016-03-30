@@ -11,8 +11,7 @@
     <br><br><br>
     <div class="container-fluid">
         <div class="row-fluid">
-            <div class="col-md-6">
-            
+            <div class="col-md-8">
             {% for problems in problem %}
                 <h2><b> {{problems.problemTitle}} </b></h2> 
                 <p><b>Read the problem statement</b></p>
@@ -27,37 +26,19 @@
                 <p>{{problems.sampleInput | safe }}</p>
                 <h4><b>Sample Output</b></h4>
                 <p>{{problems.sampleOutput | safe }}</p>
-            
-                <h3>Comments</h3>
-                {% if comment %}
-                {% for c in comment %}
-                <p>{{c.hacker.username}}: {{c.commentText}}</p>
-                {% endfor %}
-                {% endif %}
-                <form action="/judge/comment/" method="POST">{% csrf_token %}
-                    <input type="hidden" value="{{problems.id}}" name="pid">
-                    <input type="hidden" value="{{problems.contest_id}}" name="cid">
-                    <textarea rows="5" cols="50" name="comment" id="comment"></textarea><br><br>
-                    <input type="submit" class="btn btn-primary" value="Comment">
-                </form>
             </div>
-            <div class="col-md-6">
-                <h4>Submit your code here</h4>
-                <form action="/judge/submitsolution/" method="POST">{% csrf_token %}
-              <!--   <input type="hidden" value="{{problems.id}}" name="pid">
+            <div class="col-md-4">
+            <h4>Submit your code here</h4>
+            <form action="/judge/submitsolution/" method="POST">{% csrf_token %}
+                <input type="hidden" value="{{problems.id}}" name="pid">
                 <input type="hidden" value="{{problems.contest_id}}" name="cid">
-                <textarea rows="5" cols="5" name="solutionBox" id="solutionBox"></textarea> -->
-
-                <pre id="editor" style="float:left; width: 100%; margin-left:0%;"></pre>
-                <div id="editor-statusbar" style="margin-left:0%;">Status Bar: </div>
-
-
-                <!-- <br><br>
+                <textarea rows="25" cols="50" name="solutionBox" id="solutionBox"></textarea>
+                <br><br>
                 <select name="lid">
                 {% for l in language %}
                     <option value="{{l.id}}">{{l.language}}</option>
                 {% endfor %}
-                </select> -->
+                </select>
                 <br><br>
                 <input type="submit" class="btn btn-primary" value="Submit">
             </form>

@@ -4,7 +4,7 @@
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-              <a href="/judge" class="navbar-brand">Codejudge</a>
+              <a href="/judge" class="navbar-brand">CodeJudge-IIT Jodhpur</a>
             </div>    
         </div>
     </div>
@@ -13,56 +13,34 @@
         <div class="row-fluid">
             <div class="col-md-2">
                 <ul class="nav nav-pills nav-stacked">
-                  <li><a href="/judge/">Contest Details</a></li>
+                  <li><a href="/judge/">Lab Sessions</a></li>
                   <li><a href="/judge/submission">My Submissions</a></li>
                   <li class="active"><a href="/judge/profile">Profile Settings</a></li>
-                  <li><a href="http://localhost:3000" target="_blank">Chat</a></li>
                   <li><a href="/judge/logout">Logout</a></li>
                 </ul>
             </div>
             {% for h in hacker %}
             <div class="col-md-2">
             {% if h.profileImage %}
-            <img src="{{MEDIA_URL}}{{h.profileImage}}" height="10%" width="40%">
+            <img src="{{MEDIA_URL}}{{h.profileImage}}" height="15%" width="60%">
             {% else %}
-            <img src="{{MEDIA_URL}}avatar/default.jpeg" height="10%" width="40%">
+            <img src="{{MEDIA_URL}}avatar/student.png" height="15%" width="60%">
             {% endif %}
             <br><br>
             <form action="/judge/changepic/" method="post" enctype="multipart/form-data">{% csrf_token %}
                 <p>
                     <input id="id_image" type="file" class="" name="image">
                 </p>
-                <input class="btn btn-primary" type="submit" value="Change Avatar" />
+                <input class="btn btn-primary" type="submit" value="Change Profile Picture" />
             </form>
             <form action="/judge/removepic/" method="post" enctype="multipart/form-data">{% csrf_token %}
-                <input class="btn btn-primary" type="submit" value="Remove Avatar" />
+                <input class="btn btn-primary" type="submit" value="Remove Profile Picture" />
             </form>
             </div>
             <div class="col-md-4">
                 <p><b>Username: </b>{{h.username}}</p>
                 <p><b>Email: </b>{{h.email}}</p>
-            </div>
-            <!--
-            <div class="col-md-4">
-                <h3>Change Password</h3>
-                <form role="form" method="POST" action="/judge/changepassword/">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="exampleInputEmail1">Current Password</label>
-                    <input required type="password" class="form-control" id="exampleInputEmail1" placeholder="Current Password" name="oldPassword">
-                </div>
-                <div class="form-group">
-                  <label for="exampleInputPassword1">New Password</label>
-                  <input type="password" name="newPassword" class="form-control" id="exampleInputPassword1" placeholder="New Password">
-                </div>
-                <div class="form-group">
-                    <label for="exampleInputPassword2">New Password (again)</label>
-                    <input required type="password" class="form-control" id="exampleInputPassword2" placeholder="New Password (again)">
-                </div>
-                    <input type="submit" class="btn btn-primary" value="Change Password">
-                </form>
-            </div>
-            -->
+            </div> 
             {% endfor %}
         </div>
     </div>
