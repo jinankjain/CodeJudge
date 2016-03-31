@@ -1,0 +1,5 @@
+Django==1.7
+MySQL-python==1.2.5
+Pillow==2.7.0
+django-ckeditor
+pytz

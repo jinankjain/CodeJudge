@@ -110,3 +110,9 @@ class Comments(models.Model):
     contest = models.ForeignKey(Contest)
     problem = models.ForeignKey(Problem)
         
+class Link(models.Model):
+    LinkUrl = models.CharField(max_length=200)
+    LinkDescription = models.CharField(max_length=200)
+
+class Notification(models.Model):
+    NotificationText = models.TextField()
