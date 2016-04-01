@@ -6,16 +6,16 @@
             <div class="navbar-header">
               <a href="#" class="navbar-brand">CodeJudge-IIT Jodhpur</a>
             </div>
-            <a href="/admin" type="button" class="btn btn-default navbar-btn pull-right" style="background:  #0099ff;">
-                Faculty Login
+            <a href="/judge/newUser" type="button" class="btn btn-default navbar-btn pull-right" style="background:  #0099ff;">
+                Register Here
             </a>  
         </div>
     </div>
     <br><br><br><br>
     <div class="container-fluid">
     <div class="row-fluid">
-      <div class="col-md-1"></div>
-      <div class="col-md-4">
+      <div class="col-md-4"></div>
+      <div class="col-md-4" style="text-align: center;">
         <h4>Login</h4>
         Please login to continue
         <hr>
@@ -23,11 +23,11 @@
         <br><br>
         <form role="form" id="loginForm"  action="javascript:login()" >
           {% csrf_token %}
-          <div class="form-group">
+          <div class="form-group" style="text-align: left;">
           <label for="inputUsername">Username</label>
           <input required type="text" class="form-control" id="username" placeholder="Enter username" name="username">
           </div>
-          <div class="form-group">
+          <div class="form-group" style="text-align: left;">
           <label for="inputPassword">Password</label>
           <input required type="password" class="form-control" id="password" placeholder="Password" name="password">
           </div>
@@ -39,38 +39,7 @@
           <input type="submit" class="btn btn-primary" value="Login">
         </form>
         <hr>
-      </div>
-      <style type="text/css">
-          #your_col{border-left: 1px solid black;}
-      </style>
-      <div class="col-md-1"></div>
-      <div class="col-md-1" id="your_col">
-      <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-      </div>
-
-      <div class="col-md-4">
-        <h4>New Students Register here</h4>
-        Register as a new participant to continue
-        <hr>
-        <span id="newUserErrors" style="background-color:#a00;"></span>
-        <br><br>
-        <form role="form" id="addUserForm" action = "javascript:addUser()">
-        {% csrf_token %}
-          <div class="form-group">
-            <label for="inputUsername">Username</label>
-            <input required type="text" class="form-control" id="newUser" placeholder="Choose an appropriate user name" name="user_name">
-          </div>
-          <div class="form-group">
-            <label for="inputEmail">Email address</label>
-            <input required type="email" class="form-control" id="newUserEmail" placeholder="Enter your IITJ email id" name="email">
-          </div>
-          <div class="form-group">
-            <label for="inputPassword">Password</label>
-            <input required type="password" class="form-control" id="newUserPassword" placeholder="Password" name="pass_word">
-          </div>
-          <button type="submit" class="btn btn-primary">Register</button>
-        </form>
-        <hr></hr>
+      </div>  
       </div>
     </div>
   </div>
@@ -105,59 +74,6 @@
             if(data.errors){
               error = "Kindly register before continuing";
               $("#errors").html(error).addClass("badge");
-              done=false;
-            }else{
-                window.location.href = "/judge"
-            }
-          }
-        });
-      }
-    }
-
-    function addUser(){
-      var user = document.getElementById("newUser").value;
-      var password = document.getElementById("newUserPassword").value;
-      var email = document.getElementById("newUserEmail").value;
-      var done = false;
-      var error;
-      if(!user && !password && !email){
-        error = "Oh you must be having a name!";
-        $("#newUserErrors").html(error).addClass("badge");
-      }else if(!user && !password){
-        error = "Oh you must be having a name!";
-        $("#newUserErrors").html(error).addClass("badge");  
-      }else if(!user && !email){
-        error = "Oh you must be having a name!";
-        $("#newUserErrors").html(error).addClass("badge");
-      }else if(!email && !password){
-        error = "You surely need a password friend!";
-        $("#newUserErrors").html(error).addClass("badge");
-      }else if(!user){
-        error = "Oh you must be having a name!";
-        $("#newUserErrors").html(error).addClass("badge");
-      }else if(!password){
-        error = "You surely need a password friend!";
-        $("#newUserErrors").html(error).addClass("badge");
-      }else if(!email){
-        error = "Haven't you got an email?";
-        $("#newUserErrors").html(error).addClass("badge");
-      }else if(user.toLowerCase()=="admin"){
-        error = "Admin is actually your daddy!";
-        $("#newUserErrors").html(error).addClass("badge");
-      }else{
-        done = true;
-      }
-      if(done){
-        var addUserForm = $("#addUserForm").serialize();
-        $.ajax({
-          type:"POST",
-          url:"/judge/register/",
-          dataType:"json",
-          data: addUserForm,
-          success:function(data){
-            if(data.errors){
-              error = "That fellow already exists!";
-              $("#newUserErrors").html(error).addClass("badge");
               done=false;
             }else{
                 window.location.href = "/judge"

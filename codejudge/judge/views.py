@@ -58,6 +58,12 @@ def userLogin(request):
 
         return render(request, 'users/login.html')
 
+def home(request):
+    return render(request, 'users/home.html')
+
+def newUser(request):
+    return render(request, 'users/register.html')
+
 @login_required
 def userLogout(request):
     del request.session['username']
@@ -87,7 +93,7 @@ def contest(request, contestId):
 @login_required
 def profile(request):
     hacker = Hacker.objects.filter(username = request.session['username'])
-    return render(request, 'users/profile.html', {'hacker':hacker})
+    return render(request, 'users/profile.html', {'hacker':hacker}) 
 
 @login_required
 def changeProfilePic(request):

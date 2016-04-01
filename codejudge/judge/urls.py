@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = patterns('',
 	url(r'^$', views.index, name='index'),
+	url(r'^home/$', views.home, name='index'),
 	url(r'^login/$', views.userLogin, name='index'),
 	url(r'^logout/$', views.userLogout, name='index'),
 	url(r'^register/$', views.register, name='index'),
@@ -18,6 +19,7 @@ urlpatterns = patterns('',
 	url(r'^submission/$', views.submission, name='index'),
 	url(r'^comment/$', views.comment, name='index'),
 	url(r'^changepassword/$', views.changePassword, name='index'),
+	url(r'^newUser/$', views.newUser, name='index'),
 )+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

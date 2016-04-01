@@ -6,7 +6,7 @@
       {
         host     : 'localhost',
         user     : 'root',
-        password : 'pleasepls',
+        password : 'kritikajain',
         database : 'codejudge',
       }
   );
