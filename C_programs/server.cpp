@@ -21,8 +21,11 @@ C socket server example
 #include <signal.h>
 #include <sys/resource.h> 
 #include <sys/wait.h>
+#include <curl/curl.h>
 
 using namespace std;
+
+int compare_files();
 
 void sig_handler(int signo)
 {
@@ -32,7 +35,7 @@ void sig_handler(int signo)
   	if (signo == SIGXCPU)
   		cout << "Recieved Time Limit Exceed\n";
 
-  	else cout << "In FUnction exiting\n";
+  	else cout << "In Function exiting\n";
 
 	close(1);
 	close(0);
@@ -84,7 +87,7 @@ int main(int argc , char *argv[])
 
 			// Put here the port number.
 
-			server.sin_port = htons( 6030 );
+			server.sin_port = htons( 6029 );
 
 			//Bind
 			if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
@@ -118,7 +121,7 @@ int main(int argc , char *argv[])
 			while( (read_size = recv(client_sock , client_message , 20000 , 0)) > 0 )
 			{
 			//Send the message back to client
-				std:: cout << " Strlen : " << strlen(client_message) << std::endl;
+				// std:: cout << " Strlen : " << strlen(client_message) << std::endl;
 
 
 				bool parsingSuccessful = reader.parse( client_message, root );     //parse process
@@ -129,7 +132,7 @@ int main(int argc , char *argv[])
 				        return 0;
 				    }
 				    // std::cout << root.get("hello", "A Default Value if not exists" ).asString() << std::endl;
-				    cout << client_message << endl;
+				    // cout << client_message << endl;
 
 				   	//Parsing of the function json received:
 				   	// 	 temp = simplejson.dumps({
@@ -155,18 +158,16 @@ int main(int argc , char *argv[])
 			string filename = root.get("filename", "error").asString();
 			string input = root.get("input", "").asString();
 			string output = root.get("output", "5").asString();
-			string path = root.get("path", "5").asString();
+			string path = root.get("filepath", "5").asString();
 
-			cout << path << endl;
-
-			path += "/" + filename;
-
+			// cout << "Path : " << path <<endl;
 
 			std::ofstream file("input.txt");
 			file << input;
 			file.close();
 			
 			std::ofstream file_o("output.txt");
+			file_o << endl << endl;
 			file_o << output;
 			file_o.close();
 
@@ -189,7 +190,7 @@ int main(int argc , char *argv[])
 		// First get the time limit on CPU 
 		getrlimit (RLIMIT_CPU, &rl); 
 		
-		printf("\n Default value is : %lld\n", (long long int)rl.rlim_cur); 
+		// printf("\n Default value is : %lld\n", (long long int)rl.rlim_cur); 
 		
 		// Change the time limit 
 		rl.rlim_cur = time_limit; 
@@ -202,23 +203,67 @@ int main(int argc , char *argv[])
 		// Again get the limit and check 
 		getrlimit (RLIMIT_CPU, &rl); 
 		
-		printf("\n Default value now is : %lld %lld\n", (long long int)rl.rlim_cur, (long long int)rl.rlim_max); 
+		// printf("\n Default value now is : %lld %lld\n", (long long int)rl.rlim_cur, (long long int)rl.rlim_max); 
 		
 		// char ww*	 = path.c_str();
-		char * args[] = {(char *)path.c_str() , NULL};
+		// char * args[] = {(char *)path.c_str() , NULL};
 		// char *const args[] = {argv[1] , NULL};
-	    char * envs[] = {"LD_PRELOAD=./EasySandbox.so", NULL};
+	    // char * envs[] = {"LD_PRELOAD=./EasySandbox.so", NULL};
 
-	    cout << "Path : " << path << endl;
-	    sleep(1);
-	    execve(path.c_str(), args, envs);
+
+	    char *const args[] = {(char *)path.c_str(), NULL};
+	    // char *const args[] = {"./trial", NULL};
+	    char * envs[] = {"LD_PRELOAD=./EasySandbox.so", NULL};
+	    // execve("./trial",args,envs);
+
+
+
+	    // cout << "Path : " << path << endl;
+	    // sleep(1);
+	    execve( (char *) path.c_str(), args, envs);
+	    // execve( "./trial", args, envs);
+
 	    perror("execve");
 	    exit(5);
 	}
 
 	else{
 
-		// sleep(4);
+		/////////////////////////////////////////////////////////////////////////////////
+		////////////////////// CURL REQUEST /////////////////////////////////////////////
+
+		CURL *curl;
+		CURLcode res;
+		
+		curl = curl_easy_init();
+		if(curl) {
+		  curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:8000/judge/trail/");
+		  /* example.com is redirected, so we tell libcurl to follow redirection */ 
+		  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+		
+		  /* Perform the request, res will get the return code */ 
+		  res = curl_easy_perform(curl);
+		  /* Check for errors */ 
+		  if(res != CURLE_OK)
+		    fprintf(stderr, "curl_easy_perform() failed: %s\n",
+		            curl_easy_strerror(res));
+		
+		  /* always cleanup */ 
+		  curl_easy_cleanup(curl);
+		}
+
+
+
+		/////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////
+
+		// Compare output Files.....
+
+		int result = compare_files();
+		/////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////
+
+
 		int status = 5;
 		if ( waitpid(pid, &status, 0) == -1 ) {
 		    perror("waitpid failed");
@@ -237,83 +282,58 @@ int main(int argc , char *argv[])
 
 
 
-//  -------------------------------------------------------------------------------------------------------------
-		// 	Socket FOr Sending The Data
-	sleep(10);
-	int sock;
-	char message[] = "Message In Cpp";
-	struct sockaddr_in server;
-	// char message[1000] , server_reply[2000];
-
-	//Create socket
-	sock = socket(AF_INET , SOCK_STREAM , 0);
-	if (sock == -1)
-	{
-	printf("Could not create socket");
-	}
-	puts("Socket created");
-
-	server.sin_addr.s_addr = inet_addr("127.0.0.1");
-	server.sin_family = AF_INET;
-	server.sin_port = htons( 6031 );
-
-	//Connect to remote server
-	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
-	{
-	perror("connect failed. Error");
-	return 1;
-	}
-
-	puts("Connected\n");
-
-	//keep communicating with server
-	while(1)
-	{
-	printf("Enter message : ");
-	// scanf("%99[^\n]" , message);
-
-
-	// Json::Value fromScratch;
-	// Json::Value array;
-	// array.append("hello");
-	// array.append("world");
-	// fromScratch["hello"] = "world";
-	// fromScratch["number"] = 2;
-	// fromScratch["array"] = array;
-	// fromScratch["object"]["hello"] = "world";
-
-
-	// Json::FastWriter fastWriter;
-	// std::string output = fastWriter.write(fromScratch);
-
-	// strcpy(message, output.c_str());
-	// std::cout << "Sending Data: " << message << std::endl;
-	// cout << "Strlen " << strlen(message) << std::endl;	
-
-	//Send some data
-
-	if( send(sock , message , strlen(message) +1, 0) < 0)
-	{
-	puts("Send failed");
-	return 1;
-	}
-
-	//Receive a reply from the server
-	// if( recv(sock , server_reply , 2000 , 0) < 0)
-	// {
-	// 	puts("recv failed");
-	// 	break;
-	// }
-	}
-
-	close(sock);
-
-
-
-
-
 	return 0;
 
 	}
 	// return 0;
+}
+
+
+int compare_files(){
+  char c1, c2;
+  char s1[MAX], s2[MAX];
+  char *p1;
+  char *p2;
+  FILE *fp1;
+  FILE *fp2;
+  p1 = s1;
+  p2 = s2;
+
+  fp1 = fopen("out.txt", "r");
+  fp2 = fopen("output.txt", "r");
+  if (fp1 == NULL || fp2 == NULL) {
+    printf("One or both of the files can't be used \n ");
+    return -1;
+  }
+  c1 = getc(fp1);
+  c2 = getc(fp2);
+  while ((c1 != EOF) && (c2 != EOF)) {	
+    for (; c1 != '\n'; p1++) {
+        *p1 = c1;
+        c1 = getc(fp1);
+    }
+    *p1 = '\0';
+
+    for (; c2 != '\n'; p2++) {
+        *p2 = c2;
+        c2 = getc(fp2);
+    }
+    
+    *p2 = '\0';
+    if ((strcmp(s1, s2)) != 0) {
+        // printf("%s\n", s1);
+        // printf("%s\n", s2);
+        return 0;
+    }
+    c1 = getc(fp1);
+    c2 = getc(fp2);
+    p1 = s1;
+    p2 = s2;
+  }
+  if (c1 != EOF || c2 != EOF){
+    printf("One of the files ended prematurely\n");
+    return 0;
+  }
+  return 1;
+}
 }
