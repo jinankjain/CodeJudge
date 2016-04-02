@@ -13,6 +13,7 @@ from datetime import *
 import json
 import socket
 import requests
+import random, string, os, subprocess
 
 # Create your views here.
 
@@ -59,7 +60,9 @@ def userLogin(request):
         return render(request, 'users/login.html')
 
 def home(request):
-    return render(request, 'users/home.html')
+    link = Link.objects.all()
+    notification = Notification.objects.all()
+    return render(request, 'users/home.html', {'link':link, 'notif': notification})
 
 def newUser(request):
     return render(request, 'users/register.html')
@@ -181,16 +184,37 @@ def submitSolution(request):
         file2 = open(outputFile, 'r')
         output = file2.read()
         sock = Socket()
+
+        file_name = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        text_file = open(file_name + ".cpp", "w")
+        text_file.write(request.POST['solutionBox'])
+        text_file.close()
+
+
+        filepath = os.getcwd() + '/' + file_name + '.cpp'
+        arg = "g++ " + filepath + ' -o ' + os.getcwd() + '/' + file_name
+
+        print "\n \n ARG :- ", arg
+        os.system(arg);
+
+
+
+        filepath = os.getcwd() + '/' + file_name
+
+        # print filepath
+
+        print "File Name " + str(sol.id) + "." + str(l.extension)
         sock.connect("127.0.0.1", 6029)
         temp = json.dumps({'id': sol.id, 
-             'filename': str(sol.id) + "." + str(l.extension),
-             'code': request.POST['solutionBox'],
-             'language': l.language,
+             'filepath': filepath,
+             # 'filepath': str(sol.id) + "." + str(l.extension),
+             # 'code': request.POST['solutionBox'],
+             # 'language': l.language,
              'input': input,
              'output': output,
-             'matchLines': 0,
-             'partial': 0,
-             'points':p.points,
+             # 'matchLines': 0,
+             # 'partial': 0,
+             # 'points':p.points,
              'time': p.timeLimit})
         sock.send(temp)
         return HttpResponseRedirect('/judge/success')
@@ -222,3 +246,6 @@ def register(request):
         return HttpResponse(json.dumps({'errors': errors}),content_type='application/json')
     else:
         raise Http404
+
+def trial(request):
+    return HttpResponse(11111111)
