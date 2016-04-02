@@ -77,11 +77,10 @@
                   <div class="panel-heading"><span class="glyphicon glyphicon-bell"></span> General Notifications</div>
                       <div class="panel-body" style="max-height: 10em;overflow-y: scroll;">
                          <ul>
-                             <li>Hello</li>
-                             <li>Hello</li>
-                             <li>Hello</li>
-                             <li>Hello</li>
+                             {% for n in notif %}
+                             <li>{{ n.NotificationText }}</li>
                          </ul>
+                             {% endfor %}
                       </div>
                 </div>
             </div>
