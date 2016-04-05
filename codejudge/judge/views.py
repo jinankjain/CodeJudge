@@ -201,6 +201,7 @@ def submitSolution(request):
 
         filepath = os.getcwd() + '/' + file_name + '.cpp'
         arg = "g++ " + filepath + ' -o ' + os.getcwd() + '/' + file_name
+        os.system(arg);
 
         #  checkeing whether the fil got compiled or not.
         file_compiled = False
@@ -211,7 +212,7 @@ def submitSolution(request):
 
         filepath = os.getcwd() + '/' + file_name
         print filepath
-        
+
 
         if file_compiled is True:
             print "\n \n ARG :- ", arg
@@ -272,7 +273,12 @@ def trial(request):
     print request.GET.get('sol_id', '')
     print request.GET.get('result', '')
     x = Solution.objects.get(id = x)
-    x.status = int(request.GET.get('result', '5'))
+    result = request.GET.get('result', '5')
+
+    # Result = 1 means output matched.
+    print "Result is ", result
+    x.status = int(result)
+
     x.save()
     print x
     return HttpResponse()
