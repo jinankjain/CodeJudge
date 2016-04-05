@@ -168,15 +168,23 @@ def submitSolution(request):
         payload = {'fmt':'json', 'username':request.session['username'], 'password':request.session['password']}
         auth = requests.get("http://localhost:8000/v1/getAuthID",payload)
         answer = auth.json()
-        sol = Solution(hacker=h, contest=c, problem =p , points=0, language=l, attempts=0, time=0.0, status=0)
+        sol = Solution(hacker=h, contest=c, problem =p , language=l, attempts=0, time=0.0, status=0)
+
+        
         sol.save()
+        # print "--------", sol.id
+
+        sol_id = sol.id
+
         url = 'http://localhost:8000/v1/file?authid={0}&op=upload&filepath={1}'.format(answer['authid'],str(sol.id) + "." + str(l.extension))
         r = requests.post(url,request.POST['solutionBox'])
         url = 'http://localhost:8000/v1/file?authid={0}&op=download&filepath={1}'.format(answer['authid'],str(sol.id) + "." + str(l.extension))
         req = requests.get(url)
         answer = req.json()
+        
         sol.solution = answer['msg']
         sol.save()
+
         inputFile = settings.MEDIA_ROOT + str(p.testInput)
         outputFile = settings.MEDIA_ROOT + str(p.testOutput)
         file1 = open(inputFile, 'r')
@@ -194,30 +202,42 @@ def submitSolution(request):
         filepath = os.getcwd() + '/' + file_name + '.cpp'
         arg = "g++ " + filepath + ' -o ' + os.getcwd() + '/' + file_name
 
-        print "\n \n ARG :- ", arg
-        os.system(arg);
+        #  checkeing whether the fil got compiled or not.
+        file_compiled = False
 
+        print "File address: " + os.getcwd() + '/' + file_name
+        file_compiled = os.path.isfile(os.getcwd() + '/' + file_name)
 
 
         filepath = os.getcwd() + '/' + file_name
+        print filepath
+        
 
-        # print filepath
+        if file_compiled is True:
+            print "\n \n ARG :- ", arg
+            os.system(arg)
 
-        print "File Name " + str(sol.id) + "." + str(l.extension)
-        sock.connect("127.0.0.1", 6029)
-        temp = json.dumps({'id': sol.id, 
-             'filepath': filepath,
-             # 'filepath': str(sol.id) + "." + str(l.extension),
-             # 'code': request.POST['solutionBox'],
-             # 'language': l.language,
-             'input': input,
-             'output': output,
-             # 'matchLines': 0,
-             # 'partial': 0,
-             # 'points':p.points,
-             'time': p.timeLimit})
-        sock.send(temp)
-        return HttpResponseRedirect('/judge/success')
+            print "Output :- ", output
+            # print filepath
+
+            print "File Name " + str(sol.id) + "." + str(l.extension)
+            sock.connect("127.0.0.1", 6029)
+            temp = json.dumps({'id': sol.id, 
+                 'filepath': filepath,
+
+                 'input': input,
+                 'output': output,
+
+                 'sol_id': sol_id,
+                 'time': p.timeLimit})
+            sock.send(temp)
+            return HttpResponseRedirect('/judge/success')
+
+        else:
+            sol.status = 1
+            sol.save()
+            return HttpResponseRedirect('/judge/success')
+
     return HttpResponseForbidden('allowed only via POST')
 
 
@@ -248,4 +268,11 @@ def register(request):
         raise Http404
 
 def trial(request):
-    return HttpResponse(11111111)
+    x = int(request.GET.get('sol_id', ''))
+    print request.GET.get('sol_id', '')
+    print request.GET.get('result', '')
+    x = Solution.objects.get(id = x)
+    x.status = int(request.GET.get('result', '5'))
+    x.save()
+    print x
+    return HttpResponse()

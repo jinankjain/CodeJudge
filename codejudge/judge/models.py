@@ -101,6 +101,8 @@ class Solution(models.Model):
     time = models.DecimalField(max_digits=2, decimal_places=2)
     status = models.PositiveSmallIntegerField()
 
+    # idd = models.AutoField(primary_key=True, default = 0)
+
     def __unicode__(self):
         return str(self.id)
 
