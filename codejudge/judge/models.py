@@ -70,7 +70,7 @@ class Problem(models.Model):
     problemStatement = RichTextField(config_name='awesome_ckeditor')
     testInput = models.FileField(upload_to='testInput')
     testOutput = models.FileField(upload_to='testOutput')
-    points = models.PositiveSmallIntegerField()
+    #points = models.PositiveSmallIntegerField(blank=False, default = 10)
     timeLimit = models.PositiveSmallIntegerField()
     languagesAllowed = models.CommaSeparatedIntegerField(max_length=200)
     inputFormat = RichTextField(config_name='awesome_ckeditor')
@@ -94,12 +94,14 @@ class Solution(models.Model):
     hacker = models.ForeignKey(Hacker)
     contest = models.ForeignKey(Contest)
     problem = models.ForeignKey(Problem)
-    points = models.PositiveSmallIntegerField()
+    #marks = models.PositiveSmallIntegerField()
     solution = models.FileField(upload_to='solution')
     attempts = models.PositiveSmallIntegerField()
     language = models.ForeignKey(Language)
     time = models.DecimalField(max_digits=2, decimal_places=2)
     status = models.PositiveSmallIntegerField()
+
+    # idd = models.AutoField(primary_key=True, default = 0)
 
     def __unicode__(self):
         return str(self.id)
@@ -110,3 +112,9 @@ class Comments(models.Model):
     contest = models.ForeignKey(Contest)
     problem = models.ForeignKey(Problem)
         
+class Link(models.Model):
+    LinkUrl = models.CharField(max_length=200)
+    LinkDescription = models.CharField(max_length=200)
+
+class Notification(models.Model):
+    NotificationText = models.TextField()

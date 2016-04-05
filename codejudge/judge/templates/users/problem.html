@@ -4,7 +4,7 @@
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-              <a href="/judge" class="navbar-brand">Codejudge</a>
+              <a href="/judge" class="navbar-brand">TAJ</a>
             </div>    
         </div>
     </div>
@@ -26,19 +26,6 @@
                 <p>{{problems.sampleInput | safe }}</p>
                 <h4><b>Sample Output</b></h4>
                 <p>{{problems.sampleOutput | safe }}</p>
-            
-                <h3>Comments</h3>
-                {% if comment %}
-                {% for c in comment %}
-                <p>{{c.hacker.username}}: {{c.commentText}}</p>
-                {% endfor %}
-                {% endif %}
-                <form action="/judge/comment/" method="POST">{% csrf_token %}
-                    <input type="hidden" value="{{problems.id}}" name="pid">
-                    <input type="hidden" value="{{problems.contest_id}}" name="cid">
-                    <textarea rows="5" cols="50" name="comment" id="comment"></textarea><br><br>
-                    <input type="submit" class="btn btn-primary" value="Comment">
-                </form>
             </div>
             <div class="col-md-4">
             <h4>Submit your code here</h4>

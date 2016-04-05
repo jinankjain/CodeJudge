@@ -13,6 +13,7 @@ from datetime import *
 import json
 import socket
 import requests
+import random, string, os, subprocess
 
 # Create your views here.
 
@@ -58,6 +59,14 @@ def userLogin(request):
 
         return render(request, 'users/login.html')
 
+def home(request):
+    link = Link.objects.all()
+    notification = Notification.objects.all()
+    return render(request, 'users/home.html', {'link':link, 'notif': notification})
+
+def newUser(request):
+    return render(request, 'users/register.html')
+
 @login_required
 def userLogout(request):
     del request.session['username']
@@ -87,7 +96,7 @@ def contest(request, contestId):
 @login_required
 def profile(request):
     hacker = Hacker.objects.filter(username = request.session['username'])
-    return render(request, 'users/profile.html', {'hacker':hacker})
+    return render(request, 'users/profile.html', {'hacker':hacker}) 
 
 @login_required
 def changeProfilePic(request):
@@ -159,15 +168,23 @@ def submitSolution(request):
         payload = {'fmt':'json', 'username':request.session['username'], 'password':request.session['password']}
         auth = requests.get("http://localhost:8000/v1/getAuthID",payload)
         answer = auth.json()
-        sol = Solution(hacker=h, contest=c, problem =p , points=0, language=l, attempts=0, time=0.0, status=0)
+        sol = Solution(hacker=h, contest=c, problem =p , language=l, attempts=0, time=0.0, status=0)
+
+        
         sol.save()
+        # print "--------", sol.id
+
+        sol_id = sol.id
+
         url = 'http://localhost:8000/v1/file?authid={0}&op=upload&filepath={1}'.format(answer['authid'],str(sol.id) + "." + str(l.extension))
         r = requests.post(url,request.POST['solutionBox'])
         url = 'http://localhost:8000/v1/file?authid={0}&op=download&filepath={1}'.format(answer['authid'],str(sol.id) + "." + str(l.extension))
         req = requests.get(url)
         answer = req.json()
+        
         sol.solution = answer['msg']
         sol.save()
+
         inputFile = settings.MEDIA_ROOT + str(p.testInput)
         outputFile = settings.MEDIA_ROOT + str(p.testOutput)
         file1 = open(inputFile, 'r')
@@ -175,19 +192,53 @@ def submitSolution(request):
         file2 = open(outputFile, 'r')
         output = file2.read()
         sock = Socket()
-        sock.connect("127.0.0.1", 6029)
-        temp = json.dumps({'id': sol.id, 
-             'filename': str(sol.id) + "." + str(l.extension),
-             'code': request.POST['solutionBox'],
-             'language': l.language,
-             'input': input,
-             'output': output,
-             'matchLines': 0,
-             'partial': 0,
-             'points':p.points,
-             'time': p.timeLimit})
-        sock.send(temp)
-        return HttpResponseRedirect('/judge/success')
+
+        file_name = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        text_file = open(file_name + ".cpp", "w")
+        text_file.write(request.POST['solutionBox'])
+        text_file.close()
+
+
+        filepath = os.getcwd() + '/' + file_name + '.cpp'
+        arg = "g++ " + filepath + ' -o ' + os.getcwd() + '/' + file_name
+        os.system(arg);
+
+        #  checkeing whether the fil got compiled or not.
+        file_compiled = False
+
+        print "File address: " + os.getcwd() + '/' + file_name
+        file_compiled = os.path.isfile(os.getcwd() + '/' + file_name)
+
+
+        filepath = os.getcwd() + '/' + file_name
+        print filepath
+
+
+        if file_compiled is True:
+            print "\n \n ARG :- ", arg
+            os.system(arg)
+
+            print "Output :- ", output
+            # print filepath
+
+            print "File Name " + str(sol.id) + "." + str(l.extension)
+            sock.connect("127.0.0.1", 6029)
+            temp = json.dumps({'id': sol.id, 
+                 'filepath': filepath,
+
+                 'input': input,
+                 'output': output,
+
+                 'sol_id': sol_id,
+                 'time': p.timeLimit})
+            sock.send(temp)
+            return HttpResponseRedirect('/judge/success')
+
+        else:
+            sol.status = 1
+            sol.save()
+            return HttpResponseRedirect('/judge/success')
+
     return HttpResponseForbidden('allowed only via POST')
 
 
@@ -216,3 +267,18 @@ def register(request):
         return HttpResponse(json.dumps({'errors': errors}),content_type='application/json')
     else:
         raise Http404
+
+def trial(request):
+    x = int(request.GET.get('sol_id', ''))
+    print request.GET.get('sol_id', '')
+    print request.GET.get('result', '')
+    x = Solution.objects.get(id = x)
+    result = request.GET.get('result', '5')
+
+    # Result = 1 means output matched.
+    print "Result is ", result
+    x.status = int(result)
+
+    x.save()
+    print x
+    return HttpResponse()

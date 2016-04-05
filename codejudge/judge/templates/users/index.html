@@ -4,8 +4,11 @@
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-              <a href="/judge" class="navbar-brand">Codejudge</a>
-            </div>    
+              <a href="/judge" class="navbar-brand">TAJ-IIT Jodhpur</a>
+            </div>
+            <a href="/judge/home" type="button" class="btn btn-default navbar-btn pull-right" style="background:  #0099ff;">
+                Home
+            </a>      
         </div>
     </div>
     <br><br><br>
@@ -13,21 +16,20 @@
     	<div class="row-fluid">
     		<div class="col-md-2">
 				<ul class="nav nav-pills nav-stacked">
-				  <li class="active"><a href="#">Contest Details</a></li>
-                  <li><a href="/judge/submission">My Submissions</a></li>
+				  <li class="active"><a href="#">Lab Sessions</a></li>
+          <li><a href="/judge/submission">My Submissions</a></li>
 				  <li><a href="/judge/profile">Profile Settings</a></li>
-                  <li><a href="http://localhost:3000" target="_blank">Chat</a></li>
 				  <li><a href="/judge/logout">Logout</a></li>
 				</ul>
 			</div>
 
 			<div class="col-md-10">
-                <h2>Current Contest</h2>
+                <h2>Current Lab Session</h2>
                 <table class="table table-striped table-hover ">
                     <thead>
                       <tr>
                         <th>#</th>
-                        <th>Contest Name</th>
+                        <th>Lab Session Number</th>
                         <th>Start Time</th>
                         <th>End Time</th>
                       </tr>
@@ -43,33 +45,33 @@
                     {% endfor %}
                     </tbody>
                  </table>
-    			<h2>Upcoming Contest</h2>
-    			<table class="table table-striped table-hover ">
-            	    <thead>
-            	      <tr>
-            	        <th>#</th>
-            	        <th>Contest Name</th>
-            	        <th>Start Time</th>
-            	        <th>End Time</th>
-            	      </tr>
-            	    </thead>
-            	    <tbody>
+                <h2>Upcoming Lab Sessions</h2>
+                <table class="table table-striped table-hover ">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Lab Session Number</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                     {% for contests in futureContest %}
-            	      <tr>
-            	        <td>1</td>
-            	        <td><a href="contest/{{contests.id}}">{{contests.contestName}}</a></td>
-            	        <td>{{contests.startTime}}</td>
-            	        <td>{{contests.endTime}}</td>
-            	      </tr>
-            	    {% endfor %}
-            	    </tbody>
-            	 </table>
-    			<h2>Previous Contest</h2>
+                      <tr>
+                        <td>1</td>
+                        <td><a href="contest/{{contests.id}}">{{contests.contestName}}</a></td>
+                        <td>{{contests.startTime}}</td>
+                        <td>{{contests.endTime}}</td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                 </table>
+    			<h2>Previous Lab Sessions</h2>
     			<table class="table table-striped table-hover ">
                     <thead>
                       <tr>
                         <th>#</th>
-                        <th>Contest Name</th>
+                        <th>Lab Session Number</th>
                         <th>Start Time</th>
                         <th>End Time</th>
                       </tr>
